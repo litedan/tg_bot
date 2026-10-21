@@ -8,5 +8,13 @@ python-dotenv==1.0.1
 langchain-openai==0.1.25
 langchain-core==0.2.43
 
+# RAG: загрузка и разбиение документов, embeddings и векторное хранилище
+langchain-community==0.2.17
+langchain-text-splitters==0.2.4
+langchain-huggingface==0.0.3
+langchain-chroma==0.1.4
+sentence-transformers==3.0.1
+chromadb==0.5.3
+
 # Поддержка SOCKS-прокси для requests (на случай, если VPN выключится)
 requests[socks]==2.32.3
