@@ -4,7 +4,7 @@ pyTelegramBotAPI==4.21.0
 # Переменные окружения (.env)
 python-dotenv==1.0.1
 
-# Работа с локальной LLM (OpenAI-совместимый интерфейс Ollama)
+# OpenRouter использует OpenAI-совместимый API
 langchain-openai==0.1.25
 langchain-core==0.2.43
 

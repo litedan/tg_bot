@@ -13,16 +13,23 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
 
-# --- 1. Настройки LLM ---
-OPENROUTER_BASE = "http://127.0.0.1:11434/v1"
-MODEL_NAME = "gemma2:2b"
+# --- 1. Настройки OpenRouter ---
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+if not OPENROUTER_API_KEY:
+    raise RuntimeError("Не задан OPENROUTER_API_KEY. Добавьте ключ OpenRouter в .env.")
+
+OPENROUTER_BASE = "https://openrouter.ai/api/v1"
+MODEL_NAME = os.getenv("OPENROUTER_MODEL", "openrouter/free")
 
 llm = ChatOpenAI(
-    openai_api_key="fake_key",
+    openai_api_key=OPENROUTER_API_KEY,
     openai_api_base=OPENROUTER_BASE,
     model_name=MODEL_NAME,
     request_timeout=120, # Увеличенный таймаут для RAG
 )
+# OpenRouter выполняет поиск на своей стороне и возвращает модели найденные
+# источники вместе с итоговым ответом.
+llm_with_web_search = llm.bind(tools=[{"type": "openrouter:web_search"}])
 
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 if not BOT_TOKEN:
@@ -34,10 +41,11 @@ chat_history = {}
 
 # Функция очистки Markdown
 def clean_markdown(text):
+    # Сохраняем URL из ссылок, чтобы источники web search были доступны в чате.
+    text = re.sub(r'\[([^\]]+)\]\((https?://[^)]+)\)', r'\1: \2', text)
     text = re.sub(r'\*+', '', text)
     text = re.sub(r'#+\s', '', text)
     text = re.sub(r'`+', '', text)
-    text = re.sub(r'_+', '', text)
     return text
 
 # --- 2. Инициализация RAG ---
@@ -76,7 +84,7 @@ def handle_llm_message(message):
         )
 
         # --- 5. Отправка в LLM ---
-        response = llm.invoke(messages_to_send).content
+        response = llm_with_web_search.invoke(messages_to_send).content
         if not isinstance(response, str) or not response.strip():
             raise ValueError("LLM вернула пустой ответ")
         
