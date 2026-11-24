@@ -16,5 +16,11 @@ langchain-chroma==0.1.4
 sentence-transformers==3.0.1
 chromadb==0.5.3
 
+# Веб-поиск агента (DuckDuckGo, без API-ключа)
+ddgs==9.16.1
+
+# Извлечение текста веб-страниц для инструмента read_page
+beautifulsoup4==4.15.0
+
 # Поддержка SOCKS-прокси для requests (на случай, если VPN выключится)
 requests[socks]==2.32.3
